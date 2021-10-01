@@ -1,6 +1,7 @@
 import requests
 
-class MyRequests():
+
+class MyRequests:
     @staticmethod
     def post(url: str, data: dict = None, headers: dict = None, cookies: dict = None):
         return MyRequests._send(url, data, headers, cookies, 'POST')
@@ -18,23 +19,23 @@ class MyRequests():
         return MyRequests._send(url, data, headers, cookies, 'DELETE')
 
     @staticmethod
-    def _send(url:str, data:dict, headers:dict, cookies:dict, method:str):
+    def _send(url: str, data: dict, headers: dict, cookies: dict, method: str):
 
-        url1 =f"https://playground.learnqa.ru/api{url}"
-
+        # url1 =f"https://playground.learnqa.ru/api{url}"
+        url = f"https://playground.learnqa.ru/api{url}"
         if headers is None:
-            header ={}
+            headers = {}
         if cookies is None:
-            cookies={}
+            cookies = {}
 
-        if method =='GET':
-            response = requests.get(url1, params=data, headers=headers, cookies=cookies)
-        elif method =='POST':
-            response = requests.get(url1, data=data, headers=headers, cookies=cookies)
-        elif method =='PUT':
-            response = requests.get(url1, data=data, headers=headers, cookies=cookies)
-        elif method =='DELETE':
-            response = requests.get(url1, data=data, headers=headers, cookies=cookies)
+        if method == 'GET':
+            response = requests.get(url, params=data, headers=headers, cookies=cookies)
+        elif method == 'POST':
+            response = requests.get(url, data=data, headers=headers, cookies=cookies)
+        elif method == 'PUT':
+            response = requests.get(url, data=data, headers=headers, cookies=cookies)
+        elif method == 'DELETE':
+            response = requests.get(url, data=data, headers=headers, cookies=cookies)
         else:
             raise Exception(f"Bad HTTP method '{method}' was received")
 
