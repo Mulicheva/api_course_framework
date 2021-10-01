@@ -1,5 +1,8 @@
 import pytest
 import requests
+#import allure
+
+
 
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
@@ -16,11 +19,9 @@ class TestUserAuth(BaseCase):
             'email':'vinkotov@example.com',
             'password':'1234'
         }
-        response1 =requests.post("https://playground.learnqa.ru/api/user/login", data=data)
+        #response1 =requests.post("https://playground.learnqa.ru/api/user/login", data=data)
 
-        #response1 = MyRequests.post("/user/login", data=data)
-        #print(response1.url)
-        #print(response11.url)
+        response1 = MyRequests.post("/user/login", data=data)
 
         self.auth_sid = self.get_cookie(response1, "auth_sid")
         self.token=self.get_header(response1, "x-csrf-token")
