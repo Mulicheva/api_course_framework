@@ -3,3 +3,4 @@
 __pycahe__/
 logs/*
 *.pyc
+test_results/

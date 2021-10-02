@@ -1,36 +1,41 @@
 import pytest
 import requests
-#import allure
-
-
+import allure
 
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 
+
+@allure.epic("Autorization cases")
 class TestUserAuth(BaseCase):
-    exclude_params =[
+    exclude_params = [
         ("no_cookie"),
         ("no_token")
     ]
 
     def setup(self):
-        data ={
-            'email':'vinkotov@example.com',
-            'password':'1234'
+        data = {
+            'email': 'vinkotov@example.com',
+            'password': '1234'
         }
-        #response1 =requests.post("https://playground.learnqa.ru/api/user/login", data=data)
+
 
         response1 = MyRequests.post("/user/login", data=data)
 
         self.auth_sid = self.get_cookie(response1, "auth_sid")
-        self.token=self.get_header(response1, "x-csrf-token")
+        self.token = self.get_header(response1, "x-csrf-token")
         self.user_id_from_auth_method = self.get_json_value(response1, "user_id")
+
+
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.description("This test successfully autorize user by email and password")
+    @allure.title("Позитивная проверка аутентификации")
 
     def test_auth_user(self):
 
-        response2 =MyRequests.get(
-                "/user/auth",
+        response2 = MyRequests.get(
+            "/user/auth",
             headers={"x-csrf-token": self.token},
             cookies={"auth_sid": self.auth_sid}
         )
@@ -42,13 +47,15 @@ class TestUserAuth(BaseCase):
             "User id from auth method is not equal to user id from check method"
         )
 
+    @allure.description("This test checks authorization status w/o sending auth cookie or token")
+    @allure.title("Негативная проверка аутентификации:")
     @pytest.mark.parametrize('condition', exclude_params)
     def test_negative_auth_check(self, condition):
 
         if condition == "no_cookie":
-            response2=MyRequests.get(
+            response2 = MyRequests.get(
                 "/user/auth",
-                headers={"x-csrf-token":self.token}
+                headers={"x-csrf-token": self.token}
             )
         else:
             response2 = MyRequests.get(
@@ -62,6 +69,3 @@ class TestUserAuth(BaseCase):
             0,
             f"User is autorized with condition {condition}"
         )
-
-
-

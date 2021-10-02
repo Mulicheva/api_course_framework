@@ -1,8 +1,11 @@
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+import allure
 
+@allure.epic("Get method cases")
 class TestUserGet(BaseCase):
+    @allure.title("Негативная проверка без аутентификации")
     def test_get_user_details_not_auth(self):
         response = MyRequests.get("/user/2")
 
@@ -11,8 +14,9 @@ class TestUserGet(BaseCase):
         Assertions.assert_json_has_not_key(response, "firstName")
         Assertions.assert_json_has_not_key(response, "lastName")
 
-
-    def test_get_user_deatails_auth_as_same_user(self):
+    @allure.title("Получить данные пользователя с аутентификацией им же")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_get_user_details_auth_as_same_user(self):
         data ={
             'email':'vinkotov@example.com',
             'password':'1234'
@@ -32,3 +36,31 @@ class TestUserGet(BaseCase):
 
         expected_fields =["username", "email", "firstName", "lastName"]
         Assertions.assert_json_has_keys(response2, expected_fields)
+
+    @allure.title("К проверке. Авторизация одним пользователем, а получить данные другого")
+    #В этой задаче нужно написать тест, который авторизовывается одним пользователем, но получает данные другого (т.е. с другим ID).
+    # И убедиться, что в этом случае запрос также получает только username, так как мы не должны видеть остальные данные чужого пользователя.
+    #
+    def test_get_user_deatails_auth_as_other_user(self):
+        data ={
+            'email':'vinkotov@example.com',
+            'password':'1234'
+        }
+
+        response1 = MyRequests.post("/user/login", data=data)
+
+        auth_sid = self.get_cookie(response1, "auth_sid")
+        token = self.get_header(response1, "x-csrf-token")
+
+
+        response2 =MyRequests.get(
+            f"/user/1",
+            headers={"x-csrf-token":token},
+            cookies={"auth_sid":auth_sid}
+        )
+
+        expected_fields = ["username"]
+        unexpected_fields = ["email", "firstName", "lastName"]
+        Assertions.assert_json_has_keys(response2, expected_fields)
+        Assertions.assert_json_has_not_keys(response2, unexpected_fields)
+
